@@ -258,10 +258,67 @@ const animate = function () {
   renderer.render(scene, camera);
 };
 
+// Add event listeners for keyboard input
+document.addEventListener('keydown', onDocumentKeyDown, false);
+document.addEventListener('keyup', onDocumentKeyUp, false);
+
+// Initialize keyboard state
+let keyboard = {
+  w: false,
+  a: false,
+  s: false,
+  d: false,
+};
+
+// Functions to handle key events
+function onDocumentKeyDown(event) {
+  const key = event.key.toLowerCase();
+  if (key in keyboard) {
+    keyboard[key] = true;
+  }
+}
+
+function onDocumentKeyUp(event) {
+  const key = event.key.toLowerCase();
+  if (key in keyboard) {
+    keyboard[key] = false;
+  }
+}
+function updateCameraPosition() {
+  const speed = 0.1;
+  const direction = new THREE.Vector3();
+  const right = new THREE.Vector3();
+  if (keyboard.w) {
+    // Move towards the point the camera is looking at
+    camera.getWorldDirection(direction);
+    camera.position.addScaledVector(direction, speed);
+  }
+  if (keyboard.s) {
+    // Move away from the point the camera is looking at
+    camera.getWorldDirection(direction);
+    camera.position.addScaledVector(direction, -speed);
+  }
+  if (keyboard.a) {
+    // Move left
+    camera.getWorldDirection(direction);
+    right.crossVectors(camera.up, direction);
+    camera.position.addScaledVector(right, speed);
+  }
+  if (keyboard.d) {
+    // Move right
+    camera.getWorldDirection(direction);
+    right.crossVectors(camera.up, direction);
+    camera.position.addScaledVector(right, -speed);
+  }
+}
+
 
 
 // Update
 function update() {
+  // Update camera position based on keyboard input
+  updateCameraPosition();
+
   const angle_x = Math.PI * mouseX * speed;
   const angle_y = Math.PI * mouseY * speed;
   const angle_z = 0.01;
@@ -287,7 +344,7 @@ function update() {
   geometry.getAttribute("position").needsUpdate = true;
 
   //   geometry.applyMatrix4(matrix);
-  camera.lookAt(scene.position);
+  // camera.lookAt(scene.position);
   requestAnimationFrame(update);
 }
 
